@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    active: local
+
+logging:
+  level:
+    root: info
+
+server:
+  port: 8080
