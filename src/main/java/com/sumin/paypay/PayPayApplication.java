@@ -1,4 +1,4 @@
-package sumin.com.paypay;
+package com.sumin.paypay;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
