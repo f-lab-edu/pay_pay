@@ -1,14 +1,19 @@
 package com.sumin.paypay.entity;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Where;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +22,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Entity
+@SQLRestriction("deleted_at is null")
 @Builder
 @Table(name = "user")
 @AllArgsConstructor
@@ -39,10 +45,21 @@ public class User {
 	private Boolean active;
 
 	@Column(name = "created_at", nullable = false)
-	private Instant createdAt;
+	@CreationTimestamp
+	private LocalDateTime createdAt;
 
 	@Column(name = "updated_at", nullable = false)
-	private Instant updatedAt;
+	@UpdateTimestamp
+	private LocalDateTime updatedAt;
 
 
+	//TODO 비밀번호 암호화
+	public static User of( String name, String email, String pwd) {
+		return User.builder()
+			.name(name)
+			.email(email)
+			.pwd(pwd)
+			.active(true)
+			.build();
+	}
 }

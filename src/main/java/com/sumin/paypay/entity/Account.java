@@ -2,10 +2,11 @@ package com.sumin.paypay.entity;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@Where(clause = "deleted = false")
+@SQLRestriction("deleted_at is null")
 @SQLDelete(sql = "update account set deleted = true where id = ?")
 @Builder
 @Entity
@@ -44,18 +45,18 @@ public class Account {
 	private BigDecimal balance;
 
 	@Column(name = "transaction_at")
-	private Instant transactionAt;
+	private LocalDateTime transactionAt;
 
 	@Column(name = "created_at", nullable = false)
 	@CreationTimestamp
-	private Instant createdAt;
+	private LocalDateTime createdAt;
 
 	@Column(name = "updated_at", nullable = false)
 	@UpdateTimestamp
-	private Instant updatedAt;
+	private LocalDateTime updatedAt;
 
 	@Column(name = "deleted_at")
-	private Instant deletedAt;
+	private LocalDateTime deletedAt;
 
 	public static Account of(Long userId, String accountNumber) {
 		return Account.builder()
@@ -65,8 +66,9 @@ public class Account {
 			.build();
 	}
 
-	public void changeBalance(BigDecimal balance) {
+	public Account changeBalance(BigDecimal balance) {
 		this.balance = balance;
+		return this;
 	}
 
 }

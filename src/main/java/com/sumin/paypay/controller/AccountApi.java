@@ -34,7 +34,7 @@ public class AccountApi {
 	@PostMapping
 	public AccountCreateResponse create(@RequestBody @Valid AccountCreateRequest request) {
 		log.debug("Received request: {}", request);
-		return accountService.create(request);
+		return accountService.create(request.getUserId());
 	}
 
 	//계좌 목록 조회하기
@@ -54,11 +54,11 @@ public class AccountApi {
 
 	//계좌 삭제하기
 	@DeleteMapping("/{accountId}")
-	public void delete(
+	public Long delete(
 		@PathVariable @NotNull final Long accountId,
-		@ModelAttribute AccountDeleteRequest request
+		@RequestBody AccountDeleteRequest request
 	) {
-		accountService.delete(accountId, request.getUserId());
+		return accountService.delete(accountId, request.getUserId());
 	}
 
 }
