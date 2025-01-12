@@ -2,6 +2,7 @@ package com.sumin.paypay.model.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +16,7 @@ public class AccountDto {
 	private Long userId;
 	private String accountNumber;
 	private BigDecimal balance;
-	private Instant transactionAt;
-	private Instant createdAt;
-	private Instant updatedAt;
+	private LocalDateTime transactionAt;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 }

@@ -2,24 +2,36 @@ package com.sumin.paypay.entity;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import java.time.LocalDateTime;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.Where;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import com.sumin.paypay.model.enums.CurrencyType;
 import com.sumin.paypay.type.TransactionType;
 
 @Getter
 @NoArgsConstructor
+@SQLRestriction("deleted_at is null")
+@SQLDelete(sql = "update account set deleted = true where id = ?")
+@Builder
 @Entity
+@AllArgsConstructor
 @Table(name = "transaction")
 public class Transaction {
 
@@ -52,9 +64,17 @@ public class Transaction {
 	private TransactionType transactionType;
 
 	@Column(name = "created_at", nullable = false)
-	private Instant createdAt;
+	private LocalDateTime createdAt;
 
-	@Column(name = "updated_at", nullable = false)
-	private Instant updatedAt;
+	public static Transaction ofInter(Long fromAccountId, Long toAccountId, BigDecimal amount) {
+		return Transaction.builder()
+			.fromAccountId(fromAccountId)
+			.toAccountId(toAccountId)
+			.amount(amount)
+			.currencyType(CurrencyType.KRW.name())
+			.bankCode("000")
+			.transactionType(TransactionType.INTER_TRANSACTION)
+			.build();
+	}
 
 }

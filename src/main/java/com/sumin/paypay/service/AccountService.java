@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,19 +33,19 @@ public class AccountService {
 	private final AccountRepository accountRepository;
 
 	@Transactional
-	public AccountCreateResponse create(AccountCreateRequest request) {
-		validUser(request.getUserId());
+	public AccountCreateResponse create(Long userId) {
+		validUser(userId);
 		String accountNumber = makeAccountNumber();
-		Account account = accountRepository.save(Account.of(request.getUserId(), accountNumber));
+		Account account = accountRepository.save(Account.of(userId, accountNumber));
 		return new AccountCreateResponse(account.getId());
 	}
 
 	public List<AccountGetResponse> getList() {
 		List<Account> accounts = accountRepository.findAll();
-		List<AccountDto> dtos = accounts.stream()
+		return accounts.stream()
 			.sorted(Comparator.comparing(Account::getId))
-			.map(AccountMapper.INSTANCE::toAccountDto).toList();
-		return dtos.stream().map(AccountGetResponse::to).toList();
+			.map(AccountMapper.INSTANCE::toAccountDto)
+			.map(AccountGetResponse::to).toList();
 	}
 
 	public AccountDetailResponse getDetail(Long accountId, Long userId) {
@@ -54,20 +53,17 @@ public class AccountService {
 		return AccountDetailResponse.of(account);
 	}
 
-	public void validUser(Long userId) {
-		boolean existed = userRepository.existsById(userId);
-		if(!existed) {
-			throw new CommonException(INVALID_USER, INVALID_USER.getMessage());
-		}
+	//TODO testCode
+	public Long validUser(Long userId) {
+		return userRepository.findById(userId)
+			.orElseThrow(() -> new CommonException(INVALID_USER, INVALID_USER.getMessage()))
+			.getId();
 	}
 
 	public AccountDto validAndGetAccount(Long accountId, Long userId) {
-		Optional<Account> accountOptional = accountRepository.findByIdAndUserId(accountId, userId);
-		if(accountOptional.isEmpty()) {
-			throw new CommonException(INVALID_USER, INVALID_USER.getMessage());
-		}
-
-		return AccountMapper.INSTANCE.toAccountDto(accountOptional.get());
+		return accountRepository.findByIdAndUserId(accountId, userId)
+			.map(AccountMapper.INSTANCE::toAccountDto)
+			.orElseThrow(() -> new CommonException(INVALID_USER, INVALID_USER.getMessage()));
 	}
 
 	private String makeAccountNumber() {
@@ -85,14 +81,12 @@ public class AccountService {
 		return accountNumber;
 	}
 
-	public void delete(Long accountId, Long userId) {
-		Optional<Account> optionalAccount = accountRepository.findByIdAndUserId(accountId, userId);
-		if(optionalAccount.isEmpty()) {
-			throw new CommonException(INVALID_USER, INVALID_USER.getMessage());
-		}
+	public Long delete(Long accountId, Long userId) {
+		Account account = accountRepository.findByIdAndUserId(accountId, userId)
+			.orElseThrow(() -> new CommonException(INVALID_USER, INVALID_USER.getMessage()));
 
-		Account account = optionalAccount.get();
 		accountRepository.delete(account);
+		return accountId;
 	}
 
 }

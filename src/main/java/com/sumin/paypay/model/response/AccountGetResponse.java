@@ -2,6 +2,7 @@ package com.sumin.paypay.model.response;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -16,9 +17,9 @@ public class AccountGetResponse {
 	private final Long userId;
 	private final String accountNumber;
 	private final BigDecimal balance;
-	private final Instant transactionAt;
-	private final Instant createdAt;
-	private final Instant updatedAt;
+	private final LocalDateTime transactionAt;
+	private final LocalDateTime createdAt;
+	private final LocalDateTime updatedAt;
 
 	public static AccountGetResponse to(AccountDto dto) {
 		return AccountGetResponse.builder()
